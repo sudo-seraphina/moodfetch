@@ -28,7 +28,7 @@
 3. Run:
     ```bash
    pip install -e .
-4. And finally =,
+4. And finally,
    ```bash
    moodfetch
 
