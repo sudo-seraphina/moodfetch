@@ -32,7 +32,7 @@ cd moodfetch
 python3 -m venv venv
 source venv/bin/activate
 
-sudo pip install -e .
+pip install -e .
 moodfetch
 ```
 
