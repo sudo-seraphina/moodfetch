@@ -34,6 +34,11 @@
 
 Rock !!!!
 
+## Set up a virtual environment to isolate dependencies (recommended):
+python3 -m venv venv
+source venv/bin/activate
+
+
 ## Usage
 
 moodfetch --verbose (for full details)
