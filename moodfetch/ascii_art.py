@@ -23,7 +23,7 @@ class MoodVisuals:
     A class to manage ASCII art and emoji representations for system moods.
     Provides centralized and easily extendable mood visualization.
     """
-    # Comprehensive mood ASCII art definitions
+   
     MOOD_ASCII_ART: Dict[SystemMood, str] = {
         SystemMood.HAPPY: r'''
     \(^_^)/
@@ -43,7 +43,7 @@ class MoodVisuals:
          ''',
     }
 
-    # Emoji mappings for different system states
+   
     MOOD_EMOJIS: Dict[SystemMood, str] = {
         SystemMood.HAPPY: '😄',     # Low load, plenty of resources
         SystemMood.TIRED: '😴',     # Moderate load
@@ -97,7 +97,7 @@ def main():
     """
     Demonstration of mood visualization capabilities.
     """
-    # Demonstrate usage of different moods
+  
     print("Moodfetch Mood Visualization Demo:")
     for mood in SystemMood:
         print(f"\n--- {mood.name} Mood ---")
