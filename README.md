@@ -1,49 +1,136 @@
-# Moodfetch
+# MoodFetch: System Performance Mood Tracker
 
-**Moodfetch** is a lightweight and customizable system monitoring tool that provides a quick overview of system metrics, including CPU load, memory usage, disk usage, and uptime. It is designed for users who want to track their system's performance in a minimalist yet informative way, with a focus on simplicity and efficiency.
+## Overview
+
+MoodFetch is an innovative utility designed to provide an intuitive and visually engaging assessment of system performance. By analyzing various system metrics, MoodFetch translates complex technical data into an easily understandable "mood" representation.
 
 ## Features
 
-- **CPU Load**: Displays the average CPU usage across all cores.
-- **Memory Usage**: Displays the percentage of memory in use.
-- **Disk Usage**: Provides an overview of disk usage across mounted disks.
-- **System Uptime**: Displays how long the system has been running since the last boot.
+- Real-time system performance analysis
+- Colorful, emoji-enhanced mood reporting
+- Detailed or minimal output modes
+- Cross-distribution compatibility
+
+## Prerequisites
+
+Ensure you have the following requirements before installation:
+
+- Python 3.8+
+- pip (Python package manager)
+- Basic system monitoring utilities
 
 ## Installation
 
-### Requirements
+### Arch Linux (Pacman)
 
-- Python 3.x
-- `psutil` library for system metrics
+```bash
 
-### Installation Steps
+# Manual installation
+git clone https://github.com/sudo-seraphina/moodfetch.git
+cd moodfetch
+sudo python -m pip install .
+```
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/sudo-seraphina/moodfetch.git
-   cd moodfetch
-2. Install the required dependencies using pip:
-   ```bash
-   pip install -r requirements.txt
-3. Run:
-    ```bash
-   pip install -e .
-4. And finally,
-   ```bash
-   moodfetch
+### Debian/Ubuntu
 
-Rock !!!!
+```bash
+# Update package lists
+sudo apt update
 
-## Set up a virtual environment to isolate dependencies (recommended):
-python3 -m venv venv
-source venv/bin/activate
+# Install dependencies
+sudo apt install python3-pip python3-dev build-essential
 
+# Clone and install
+git clone https://github.com/sudo-seraphina/moodfetch.git
+cd moodfetch
+sudo python3 -m pip install .
+```
+
+### Fedora
+
+```bash
+# Install dependencies
+sudo dnf install python3-pip python3-devel
+
+# Clone and install
+git clone https://github.com/sudo-seraphina/moodfetch.git
+cd moodfetch
+sudo python3 -m pip install .
+```
 
 ## Usage
 
-moodfetch --verbose (for full details)
-moodfetch -default
-moodfetch --minimal (for minimal details)
+### Basic Usage
+
+```bash
+# Display system mood
+moodfetch
+
+# Verbose mode (detailed metrics)
+moodfetch -v
+
+# Minimal mode (just mood and emoji)
+moodfetch -m
+```
+
+### Command-Line Options
+
+- `-v` or `--verbose`: Display comprehensive system metrics
+- `-m` or `--minimal`: Show only mood and emoji
+
+## Example Outputs
+
+### Standard Output
+```
+==================================================
+||       SYSTEM MOOD DIAGNOSTIC        ||
+==================================================
+
+🟢 Status: EXCELLENT 😄
+
+System Visualization:
+[ASCII Art Representation]
+
+==================================================
+|| Analyzed at: 2024-03-15 14:23:45 ||
+==================================================
+```
+
+### Verbose Output
+```
+==================================================
+||       SYSTEM MOOD DIAGNOSTIC        ||
+==================================================
+
+🟢 Status: EXCELLENT 😄
+
+System Visualization:
+[ASCII Art Representation]
+
+🔍 Detailed System Metrics:
+✅ CPU Usage: 35%
+✅ Memory Utilization: 42%
+⚠️ Disk Space: 65%
+🚨 Network Latency: 95ms
+
+==================================================
+|| Analyzed at: 2024-03-15 14:23:45 ||
+==================================================
+```
+
+## Troubleshooting
+
+1. **Permission Issues**: Ensure you have the necessary system monitoring permissions.
+2. **Python Version**: Verify you're using Python 3.8 or later.
+3. **Dependency Problems**: Use `pip install -r requirements.txt` to resolve missing dependencies.
+
+## Contributing
+
+Contributions are welcome! Please refer to our contribution guidelines for more information.
+
+## Contact
+
+For issues, suggestions, or contributions, please open an issue on our GitHub repository.
 
 ## License
 This project is licensed under the MIT License 
