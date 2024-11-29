@@ -1,8 +1,8 @@
-# MoodFetch: System Performance Mood Tracker
+# MoodFetch: A simple System Information and Performance Mood Tracker
 
 ## Overview
 
-MoodFetch is an innovative utility designed to provide an intuitive and visually engaging assessment of system performance. By analyzing various system metrics, MoodFetch translates complex technical data into an easily understandable "mood" representation.
+MoodFetch is an innovative utility designed to provide an intuitive and visually engaging assessment of system performance. By analyzing various system metrics, MoodFetch fetches and translates complex technical data into an easily understandable "mood" representation.
 
 ## Features
 
@@ -18,6 +18,8 @@ Ensure you have the following requirements before installation:
 - Python 3.8+
 - pip (Python package manager)
 - Basic system monitoring utilities
+- psutils
+- python-pip (on Arch Linux)
 
 ## Installation
 
@@ -26,17 +28,30 @@ Ensure you have the following requirements before installation:
 ```bash
 
 # Manual installation
+
+# Install required packages if not installed already:
+
+sudo pacman -S psutils python-pip
+
 git clone https://github.com/sudo-seraphina/moodfetch.git
+
 cd moodfetch
 
 python3 -m venv venv
 source venv/bin/activate
 
 pip install -e .
+
+# Update pip if not already updated to ensure the tool works as expected:
+
+pip install --upgrade pip
+
+# Running the tool:
+
 moodfetch
 ```
 
-### Debian/Ubuntu
+### Debian/Ubuntu (apt)
 
 ```bash
 # Update package lists
@@ -51,7 +66,7 @@ cd moodfetch
 sudo python3 -m pip install .
 ```
 
-### Fedora
+### Fedora (dnf)
 
 ```bash
 # Install dependencies
@@ -138,8 +153,8 @@ Contributions are welcome!
 For issues, suggestions, or contributions, please open an issue on our GitHub repository.
 
 ## License
-This project is licensed under the MIT License 
+`This project is licensed under the MIT License `
 
 ## Acknowledgements
-The psutil library for providing system metrics.
-Inspiration from various system monitoring tools.
+- The psutil library for providing system metrics.
+- Inspiration from various system monitoring tools.
