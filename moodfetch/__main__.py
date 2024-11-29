@@ -13,6 +13,7 @@ from typing import Dict, Any
 from .mood_analyzer import SystemMoodAnalyzer, SystemPerformanceException
 from .ascii_art import MoodVisuals, SystemMood
 
+
 def configure_logging() -> logging.Logger:
     """
     Configure logging for the moodfetch utility.
@@ -69,7 +70,7 @@ def display_mood_details(
     args: argparse.Namespace
 ) -> None:
     """
-    Display system mood and associated details.
+    Enhanced display of system mood with a more engaging and informative presentation.
 
     Args:
         mood_details (Dict[str, Any]): Comprehensive mood analysis details.
@@ -79,20 +80,55 @@ def display_mood_details(
     mood = mood_details['mood'].upper()
     emoji = mood_details['emoji']
 
-    # Primary mood display
-    print(f"System Mood: {mood} {emoji}")
+    # Create a visually appealing header
+    header_width = 50
+    header_line = "=" * header_width
+    centered_mood = mood.center(header_width - 4)
+
+    # Color codes for different mood levels (ANSI escape sequences)
+    color_codes = {
+        'EXCELLENT': '\033[92m',    # Bright Green
+        'GOOD': '\033[96m',          # Cyan
+        'AVERAGE': '\033[93m',       # Yellow
+        'POOR': '\033[91m',          # Bright Red
+        'CRITICAL': '\033[41;1;37m'  # Red Background with White Text
+    }
+    reset_color = '\033[0m'
+
+    # Select color based on mood (default to white if not found)
+    mood_color = color_codes.get(mood, '\033[97m')
+
+    # Create the mood display
+    print(f"\n{header_line}")
+    print(f"|| {mood_color}SYSTEM MOOD DIAGNOSTIC{reset_color} ||")
+    print(header_line)
+    print(f"\n{mood_color}Status: {mood} {emoji}{reset_color}\n")
 
     # ASCII Art Display (unless in minimal mode)
     if not args.minimal:
-        print("\n" + mood_details['ascii_art'])
+        print("System Visualization:")
+        print(mood_details['ascii_art'])
+        print()
 
-    # Verbose metrics display
+    # Verbose metrics display with styled output
     if args.verbose:
-        print("\nDetailed System Metrics:")
+        print("🔍 Detailed System Metrics:")
         metrics = mood_details['metrics']
+
+        # Create a metrics table with visual indicators
         for key, value in metrics.items():
             formatted_key = key.replace('_', ' ').title()
-            print(f"{formatted_key}: {value}")
+
+            # Add visual indicators based on metric performance
+            indicator = '✅' if value > 80 else '⚠️' if value > 50 else '🚨'
+
+            print(f"{indicator} {formatted_key}: {mood_color}{value}{reset_color}")
+
+    # Footer
+    print(f"\n{header_line}")
+    #print(f"|| Analyzed at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ||")
+    print(header_line)
+
 
 def main() -> None:
     """
