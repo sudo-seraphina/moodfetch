@@ -126,7 +126,7 @@ System Visualization:
 
 ## Contributing
 
-Contributions are welcome! Please refer to our contribution guidelines for more information.
+Contributions are welcome! 
 
 ## Contact
 
