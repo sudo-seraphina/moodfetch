@@ -11,6 +11,12 @@ MoodFetch is an innovative utility designed to provide an intuitive and visually
 - Detailed or minimal output modes
 - Cross-distribution compatibility
 
+## MoodFetch Demo
+
+Here's a screenshot of MoodFetch in action:
+
+![MoodFetch Demo](demo.png)
+
 ## Prerequisites
 
 Ensure you have the following requirements before installation:
