@@ -27,7 +27,8 @@ class SystemMoodAnalyzer:
     def __init__(self,
                  cpu_threshold_high: float = 80.0,
                  memory_threshold_high: float = 80.0,
-                 disk_threshold_high: float = 80.0):
+                 disk_threshold_high: float = 80.0,
+                 uptime_threshold_hours: int = 24):
         """
         Initialize system mood analyzer with configurable thresholds.
 
@@ -35,24 +36,16 @@ class SystemMoodAnalyzer:
             cpu_threshold_high (float): Threshold for high CPU usage (%).
             memory_threshold_high (float): Threshold for high memory usage (%).
             disk_threshold_high (float): Threshold for high disk usage (%).
+            uptime_threshold_hours (int): Threshold for prolonged uptime (hours).
         """
         self.logger = logging.getLogger(__name__)
 
-        # Configurable performance thresholds
         self.thresholds = {
-            'cpu': {
-                'high': cpu_threshold_high,
-                'moderate': 50.0
-            },
-            'memory': {
-                'high': memory_threshold_high,
-                'moderate': 50.0
-            },
-            'disk': {
-                'high': disk_threshold_high,
-                'moderate': 50.0
-            }
+            'cpu': {'high': cpu_threshold_high, 'moderate': 50.0},
+            'memory': {'high': memory_threshold_high, 'moderate': 50.0},
+            'disk': {'high': disk_threshold_high, 'moderate': 50.0},
         }
+        self.uptime_threshold_hours = uptime_threshold_hours
 
     def get_system_metrics(self) -> Dict[str, Any]:
         """
@@ -65,82 +58,65 @@ class SystemMoodAnalyzer:
             SystemPerformanceException: If unable to retrieve system metrics.
         """
         try:
-            # CPU Usage
             cpu_usage = psutil.cpu_percent(interval=1)
-
-            # Memory Usage
             memory = psutil.virtual_memory()
-            memory_usage = memory.percent
-            memory_total = memory.total / (1024 ** 3)  # Convert to GB
-            memory_available = memory.available / (1024 ** 3)  # Convert to GB
-
-            # Disk Usage
             disk = psutil.disk_usage('/')
-            disk_usage = disk.percent
-            disk_total = disk.total / (1024 ** 3)  # Convert to GB
-            disk_free = disk.free / (1024 ** 3)  # Convert to GB
-
-            # System Uptime
-            uptime = time.time() - psutil.boot_time()
-            uptime_hours = uptime / 3600  # Convert to hours
+            uptime_seconds = time.time() - psutil.boot_time()
 
             return {
                 'cpu_usage': cpu_usage,
-                'memory_usage': memory_usage,
-                'memory_total_gb': round(memory_total, 2),
-                'memory_available_gb': round(memory_available, 2),
-                'disk_usage': disk_usage,
-                'disk_total_gb': round(disk_total, 2),
-                'disk_free_gb': round(disk_free, 2),
-                'uptime_hours': round(uptime_hours, 2)
+                'memory_usage': memory.percent,
+                'memory_total_gb': round(memory.total / (1024**3), 2),
+                'memory_available_gb': round(memory.available / (1024**3), 2),
+                'disk_usage': disk.percent,
+                'disk_total_gb': round(disk.total / (1024**3), 2),
+                'disk_free_gb': round(disk.free / (1024**3), 2),
+                'uptime_hours': round(uptime_seconds / 3600, 2),
             }
         except Exception as e:
-            self.logger.error(f"Failed to retrieve system metrics: {e}")
-            raise SystemPerformanceException("Unable to collect system metrics") from e
+            self.logger.error(f"Error retrieving system metrics: {e}")
+            raise SystemPerformanceException("Failed to collect system metrics") from e
+
+    def calculate_health_score(self, metrics: Dict[str, Any]) -> float:
+        """
+        Calculate a weighted health score for the system.
+
+        Args:
+            metrics (Dict[str, Any]): System performance metrics.
+
+        Returns:
+            float: Health score (0-100), where higher is better.
+        """
+        cpu_score = max(0, 100 - metrics['cpu_usage'])
+        memory_score = max(0, 100 - metrics['memory_usage'])
+        disk_score = max(0, 100 - metrics['disk_usage'])
+        uptime_penalty = min(20, metrics['uptime_hours'] / self.uptime_threshold_hours * 20)
+
+        # Aggregate health score
+        return max(0, (cpu_score + memory_score + disk_score) / 3 - uptime_penalty)
 
     def determine_mood(self) -> SystemMood:
         """
         Determine the system's current mood based on performance metrics.
 
-        Evaluates multiple system parameters to categorize
-        the overall system performance state.
-
         Returns:
             SystemMood: Categorized system mood state.
         """
-        try:
-            metrics = self.get_system_metrics()
+        metrics = self.get_system_metrics()
+        health_score = self.calculate_health_score(metrics)
 
-            # Stressed condition (high resource utilization)
-            if (metrics['cpu_usage'] > self.thresholds['cpu']['high'] or
-                metrics['memory_usage'] > self.thresholds['memory']['high'] or
-                metrics['disk_usage'] > self.thresholds['disk']['high']):
-                return SystemMood.STRESSED
-
-            # Tired condition (prolonged uptime)
-            if metrics['uptime_hours'] > 24:  # Over a day uptime
-                return SystemMood.TIRED
-
-            # Happy condition (low resource utilization)
-            if (metrics['cpu_usage'] < self.thresholds['cpu']['moderate'] and
-                metrics['memory_usage'] < self.thresholds['memory']['moderate'] and
-                metrics['disk_usage'] < self.thresholds['disk']['moderate']):
-                return SystemMood.HAPPY
-
-            # Default to calm if no other conditions are met
-            return SystemMood.CALM
-
-        except SystemPerformanceException:
-            # Fallback mood if metrics collection fails
-            self.logger.warning("Defaulting to CALM mood due to metrics collection failure")
+        if health_score < 40 or metrics['cpu_usage'] > self.thresholds['cpu']['high']:
+            return SystemMood.STRESSED
+        elif metrics['uptime_hours'] > self.uptime_threshold_hours:
+            return SystemMood.TIRED
+        elif health_score > 80:
+            return SystemMood.HAPPY
+        else:
             return SystemMood.CALM
 
     def get_mood_details(self) -> Dict[str, Any]:
         """
         Generate a comprehensive mood report.
-
-        Provides detailed insights into system performance
-        and current mood state.
 
         Returns:
             Dict containing mood information and system metrics.
@@ -153,39 +129,38 @@ class SystemMoodAnalyzer:
                 'mood': mood.name.lower(),
                 'emoji': MoodVisuals.get_emoji(mood),
                 'ascii_art': MoodVisuals.get_ascii_art(mood),
-                'metrics': metrics
+                'metrics': metrics,
+                'health_score': self.calculate_health_score(metrics),
             }
         except SystemPerformanceException as e:
-            self.logger.error(f"Mood details generation failed: {e}")
+            self.logger.error(f"Failed to generate mood details: {e}")
             return {
                 'mood': 'unknown',
                 'emoji': '❓',
-                'ascii_art': 'System metrics unavailable',
-                'metrics': {}
+                'ascii_art': 'Metrics unavailable',
+                'metrics': {},
+                'health_score': 0,
             }
 
 def main():
     """
-    Demonstration of SystemMoodAnalyzer functionality.
+    Run a demonstration of the SystemMoodAnalyzer.
     """
     logging.basicConfig(level=logging.INFO)
+    analyzer = SystemMoodAnalyzer()
 
     try:
-        analyzer = SystemMoodAnalyzer()
-        mood_report = analyzer.get_mood_details()
-
-        print("System Mood Analysis Report:")
-        print(f"Mood: {mood_report['mood'].capitalize()}")
-        print(f"Emoji: {mood_report['emoji']}")
+        report = analyzer.get_mood_details()
+        print("System Mood Report:")
+        print(f"Mood: {report['mood'].capitalize()} {report['emoji']}")
         print("\nASCII Art:")
-        print(mood_report['ascii_art'])
-
+        print(report['ascii_art'])
         print("\nSystem Metrics:")
-        for metric, value in mood_report['metrics'].items():
-            print(f"{metric.replace('_', ' ').title()}: {value}")
-
+        for key, value in report['metrics'].items():
+            print(f"{key.replace('_', ' ').title()}: {value}")
+        print(f"\nHealth Score: {report['health_score']:.2f}")
     except Exception as e:
-        logging.error(f"Mood analysis failed: {e}")
+        logging.error(f"Error during mood analysis: {e}")
 
 if __name__ == "__main__":
     main()
